@@ -1,10 +1,10 @@
 import os
-
+import warnings
 from pathlib import Path
 
 
-def set_wandb_env_keys(api_key, username, search_paths=('.', )):
-    api_key = _get_wandb_api_key(api_key, search_paths)
+def set_wandb_env_keys(api_key=None, username=None, api_key_file=None, search_paths=('.', )):
+    api_key = _get_wandb_api_key(api_key, api_key_file, search_paths)
 
     if not api_key:
         return False
@@ -15,9 +15,12 @@ def set_wandb_env_keys(api_key, username, search_paths=('.', )):
     return True
 
 
-def _get_wandb_api_key(api_key, search_paths):
+def _get_wandb_api_key(api_key, api_key_file, search_paths):
     if api_key:
-        key_file = Path(api_key)
+        if api_key_file:
+            warnings.warn("Ignoring 'api_key_file' as 'api_key' was passed.")
+    elif api_key_file:
+        key_file = Path(api_key_file)
         if key_file.is_absolute():
             key_files = [key_file]
         else:
@@ -30,6 +33,7 @@ def _get_wandb_api_key(api_key, search_paths):
                 with Path(file).open('r') as f:
                     api_key = f.read()
                     api_key = api_key.partition('\n')[0]
+
         if api_key is None:
             nlnt = '\n\t'
             msg = f"No such file(s): {nlnt.join(str(x) for x in key_files)}\n" \
