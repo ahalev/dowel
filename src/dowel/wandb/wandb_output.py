@@ -1,9 +1,17 @@
+import inspect
 import functools
+
+import numpy as np
 import wandb
 
 from dowel import LogOutput
 from dowel import TabularInput
 
+
+WANDB_TYPES = tuple([
+    wandb.viz.CustomChart,
+    *(x[1] for x in inspect.getmembers(wandb.data_types, inspect.isclass))
+])
 
 
 class WandbOutput(LogOutput):
@@ -29,8 +37,16 @@ class WandbOutput(LogOutput):
         self._default_step = 0
 
     def record(self, data, prefix=''):
+
+        wandb_data = dict()
+
+        for k, v in data.as_dict.items():
+            if isinstance(v, (np.ScalarType, WANDB_TYPES)):
+                wandb_data[k] = v
+                data.mark(k)
+
         self._waiting_for_dump.append(
-            functools.partial(self._wandb_run.log, data.as_dict)
+            functools.partial(self._wandb_run.log, wandb_data)
         )
 
     def dump(self, step=None):
@@ -42,4 +58,4 @@ class WandbOutput(LogOutput):
 
     @property
     def types_accepted(self):
-        return TabularInput, wandb.data_types.Media
+        return TabularInput,
