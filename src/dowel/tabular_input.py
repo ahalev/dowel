@@ -35,6 +35,10 @@ class TabularInput:
         """
         self._dict[self._prefix_str + str(key)] = val
 
+    def record_many(self, records):
+        for k, v in records.items():
+            self.record(k, v)
+
     def mark(self, key):
         """Mark key as recorded."""
         self._recorded.add(key)
