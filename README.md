@@ -8,6 +8,8 @@
 
 dowel is a little logger for machine learning research.
 
+This fork includes support for logging to Weights and Biases (wandb) via `dowel.WandbOutput`.
+
 ## Installation
 ```shell
 pip install dowel
@@ -16,10 +18,23 @@ pip install dowel
 ## Usage
 ```python
 import dowel
+import numpy as np
+import wandb
 from dowel import logger, tabular
+
+
+wandb_api_key = 'your_wandb_api_key'
+wandb_username = 'your_wandb_username'
+dowel.set_wandb_env_keys(wandb_api_key, wandb_username)
+
+wandb.init(
+    project='machine-learning',
+    config={'batch_size': 32, 'lr': 0.01}
+)
 
 logger.add_output(dowel.StdOutput())
 logger.add_output(dowel.TensorBoardOutput('tensorboard_logdir'))
+logger.add_output(dowel.WandbOutput())
 
 logger.log('Starting up...')
 for i in range(1000):
@@ -28,6 +43,12 @@ for i in range(1000):
 
     tabular.record('itr', i)
     tabular.record('loss', 100.0 / (2 + i))
+
+    # Log a wandb table
+    data = np.random.rand(10, 2)
+    wandb_table = wandb.Table(data=data, columns=['x', 'y'])
+    tabular.record('chart', wandb.plot.scatter(wandb_table, 'x', 'y'))
+
     logger.log(tabular)
 
     logger.pop_prefix()
