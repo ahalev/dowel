@@ -42,4 +42,4 @@ class WandbOutput(LogOutput):
 
     @property
     def types_accepted(self):
-        return TabularInput, wandb.data_types.Media
+        return TabularInput,
