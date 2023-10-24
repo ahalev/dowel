@@ -36,7 +36,7 @@ def _get_wandb_api_key(api_key, api_key_file, search_paths):
 
         if api_key is None:
             nlnt = '\n\t'
-            msg = f"No such file(s): {nlnt.join(str(x) for x in key_files)}\n" \
+            msg = f"No such file(s): {nlnt.join(str(x.resolve()) for x in key_files)}\n" \
                   f"Pass '--logging.wandb.api_key <path_to_api_key>' at the command line to give the correct " \
                   f"path to a wandb api key or pass --logging.wandb.api_key null to disable wandb." \
                   f"Default value 'wandb_api_key.txt' searches in working directory and in rgen repo root directory."
