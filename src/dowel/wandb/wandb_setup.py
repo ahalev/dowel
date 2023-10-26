@@ -3,8 +3,8 @@ import warnings
 from pathlib import Path
 
 
-def set_wandb_env_keys(api_key=None, username=None, api_key_file=None, search_paths=('.', )):
-    api_key = _get_wandb_api_key(api_key, api_key_file, search_paths)
+def set_wandb_env_keys(api_key=None, username=None, api_key_file=None, search_paths=('.', ), errors='warn'):
+    api_key = _get_wandb_api_key(api_key, api_key_file, search_paths, errors)
 
     if not api_key:
         return False
@@ -15,7 +15,9 @@ def set_wandb_env_keys(api_key=None, username=None, api_key_file=None, search_pa
     return True
 
 
-def _get_wandb_api_key(api_key, api_key_file, search_paths):
+def _get_wandb_api_key(api_key, api_key_file, search_paths, errors):
+    assert errors in ('ignore', 'warn', 'raise'), "errors must be one of 'ignore', 'warn', 'raise'."
+
     if api_key:
         if api_key_file:
             warnings.warn("Ignoring 'api_key_file' as 'api_key' was passed.")
@@ -35,13 +37,18 @@ def _get_wandb_api_key(api_key, api_key_file, search_paths):
                     api_key = api_key.partition('\n')[0]
 
         if api_key is None:
-            nlnt = '\n\t'
-            msg = f"No such file(s): {nlnt.join(str(x.resolve()) for x in key_files)}\n" \
-                  f"Pass '--logging.wandb.api_key <path_to_api_key>' at the command line to give the correct " \
-                  f"path to a wandb api key or pass --logging.wandb.api_key null to disable wandb." \
-                  f"Default value 'wandb_api_key.txt' searches in working directory and in rgen repo root directory."
+            try:
+                api_key = os.environ['WANDB_API_KEY']
+            except KeyError:
+                nlnt = '\n\t'
+                msg = f"No such file(s): {nlnt.join(str(x.resolve()) for x in key_files)}"
 
-            raise FileNotFoundError(msg)
+                if errors == 'ignore':
+                    pass
+                elif errors == 'warn':
+                    warnings.warn(msg)
+                else:
+                    raise FileNotFoundError(msg)
     else:
         api_key = os.environ.get('WANDB_API_KEY')
 
