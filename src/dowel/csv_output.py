@@ -12,8 +12,8 @@ class CsvOutput(FileOutput):
     :param file_name: The file this output should log to.
     """
 
-    def __init__(self, file_name):
-        super().__init__(file_name)
+    def __init__(self, file_name, level=0):
+        super().__init__(file_name, level)
         self._writer = None
         self._fieldnames = None
         self._filename = file_name

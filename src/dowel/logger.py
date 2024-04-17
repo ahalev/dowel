@@ -179,14 +179,15 @@ class LogOutput(abc.ABC):
 class Logger:
     """This is the class that handles logging."""
 
-    def __init__(self):
+    def __init__(self, default_level=0):
         self._outputs = []
         self._prefixes = []
         self._prefix_str = ''
         self._warned_once = set()
         self._disable_warnings = False
+        self.default_level = default_level
 
-    def log(self, data):
+    def log(self, data, level=None):
         """Magic method that takes in all different types of input.
 
         This method is the main API for the logger. Any data to be logged goes
@@ -201,9 +202,12 @@ class Logger:
         if not self._outputs:
             self._warn('No outputs have been added to the logger.')
 
+        if level is None:
+            level = self.default_level
+
         at_least_one_logged = False
         for output in self._outputs:
-            if isinstance(data, output.types_accepted):
+            if isinstance(data, output.types_accepted) and level >= output.level:
                 output.record(data, prefix=self._prefix_str)
                 at_least_one_logged = True
 

@@ -24,7 +24,7 @@ class WandbOutput(LogOutput):
         log_dir(str): Save location of wandb_run dir. Ignored if wandb_run is not callable.
     """
 
-    def __init__(self, wandb_run=None, log_dir=None):
+    def __init__(self, wandb_run=None, log_dir=None, level=0):
         self._wandb_run = wandb_run or wandb.run
 
         if callable(self._wandb_run):
@@ -32,6 +32,8 @@ class WandbOutput(LogOutput):
 
         if self._wandb_run is None:
             raise RuntimeError('wandb.run not found. Call wandb.init before initializing WandbOutput.')
+
+        self.level = level
 
         self._waiting_for_dump = []
         self._default_step = 0
