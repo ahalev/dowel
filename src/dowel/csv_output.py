@@ -89,5 +89,4 @@ class LazyCsvOutput(CsvOutput):
 
     def dump(self, step=None):
         super().record(self._waiting_for_dump)
-        self._waiting_for_dump.mark_all()
         self._waiting_for_dump.clear()
