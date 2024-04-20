@@ -85,8 +85,7 @@ class LazyCsvOutput(CsvOutput):
             msg = f'Found overlapping keys that will be overwritten: {overlap}'
             self._waiting_for_dump._warn(msg)
 
-        with self._waiting_for_dump.prefix(prefix):
-            self._waiting_for_dump.record_many(to_csv)
+        self._waiting_for_dump.record_many(to_csv)
 
     def dump(self, step=None):
         super().record(self._waiting_for_dump)
