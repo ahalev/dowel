@@ -81,7 +81,7 @@ class LazyCsvOutput(CsvOutput):
 
         to_csv = data.as_primitive_dict
 
-        if overlap:=to_csv.keys() | self._waiting_for_dump.as_dict.keys():
+        if overlap:=to_csv.keys() & self._waiting_for_dump.as_dict.keys():
             msg = f'Found overlapping keys that will be overwritten: {overlap}'
             self._waiting_for_dump._warn(msg)
 
