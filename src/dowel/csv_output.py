@@ -13,7 +13,7 @@ class CsvOutput(FileOutput):
     """
 
     def __init__(self, file_name, level=0):
-        super().__init__(file_name, level)
+        super().__init__(file_name, level=level)
         self._writer = None
         self._fieldnames = None
         self._filename = file_name
