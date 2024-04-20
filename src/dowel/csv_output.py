@@ -66,3 +66,29 @@ class CsvOutput(FileOutput):
                 data.mark(k)
         else:
             raise ValueError('Unacceptable type.')
+
+
+class LazyCsvOutput(CsvOutput):
+    """CSV file output for logger that only writes to the file when dump() is called.
+    """
+    def __init__(self, file_name, level=0):
+        super().__init__(file_name, level=level)
+        self._waiting_for_dump = TabularInput()
+
+    def record(self, data, prefix=''):
+        if not isinstance(data, TabularInput):
+            raise ValueError('Unacceptable type.')
+
+        to_csv = data.as_primitive_dict
+
+        if overlap:=to_csv.keys() | self._waiting_for_dump.as_dict.keys():
+            msg = f'Found overlapping keys that will be overwritten: {overlap}'
+            self._waiting_for_dump._warn(msg)
+
+        with self._waiting_for_dump.prefix(prefix):
+            self._waiting_for_dump.record_many(to_csv)
+
+    def dump(self, step=None):
+        super().record(self._waiting_for_dump)
+        self._waiting_for_dump.mark_all()
+        self._waiting_for_dump.clear()
