@@ -49,7 +49,8 @@ class TensorBoardOutput(LogOutput):
                  x_axis=None,
                  additional_x_axes=None,
                  flush_secs=120,
-                 histogram_samples=1e3):
+                 histogram_samples=1e3,
+                 level=0):
         if x_axis is None:
             assert not additional_x_axes, (
                 'You have to specify an x_axis if you want additional axes.')
@@ -63,6 +64,7 @@ class TensorBoardOutput(LogOutput):
         self._histogram_samples = int(histogram_samples)
         self._added_graph = False
         self._waiting_for_dump = []
+        self.level = level
         # Used in tests to emulate Tensorflow not being installed.
         self._tf = tf
 

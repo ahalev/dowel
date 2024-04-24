@@ -20,8 +20,9 @@ class StdOutput(LogOutput):
     :param with_timestamp: Whether to log a timestamp before non-tabular data.
     """
 
-    def __init__(self, with_timestamp=True):
+    def __init__(self, with_timestamp=True, level=0):
         self._with_timestamp = with_timestamp
+        self.level = level
 
     @property
     def types_accepted(self):
@@ -56,10 +57,11 @@ class FileOutput(LogOutput, metaclass=abc.ABCMeta):
     :param mode: File open mode ('a', 'w', etc).
     """
 
-    def __init__(self, file_name, mode='w'):
+    def __init__(self, file_name, mode='w', level=0):
         mkdir_p(os.path.dirname(file_name))
         # Open the log file in child class
         self._log_file = open(file_name, mode)
+        self.level = level
 
     def close(self):
         """Close any files used by the output."""
@@ -78,8 +80,8 @@ class TextOutput(FileOutput):
     :param with_timestamp: Whether to log a timestamp before the data.
     """
 
-    def __init__(self, file_name, with_timestamp=True):
-        super().__init__(file_name, 'a')
+    def __init__(self, file_name, with_timestamp=True, level=0):
+        super().__init__(file_name, 'a', level)
         self._with_timestamp = with_timestamp
         self._delimiter = ' | '
 
