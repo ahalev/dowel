@@ -19,6 +19,8 @@ class TabularInput:
         self._recorded = set()
         self._prefixes = []
         self._prefix_str = ''
+        self._suffixes = []
+        self._suffix_str = ''
         self._warned_once = set()
         self._disable_warnings = False
 
@@ -33,7 +35,7 @@ class TabularInput:
         :param key: String key corresponding to the value.
         :param val: Value that is to be stored in the table.
         """
-        self._dict[self._prefix_str + str(key)] = val
+        self._dict[self._prefix_str + str(key) + self._suffix_str] = val
 
     def record_many(self, records):
         for k, v in records.items():
@@ -95,6 +97,24 @@ class TabularInput:
         finally:
             self.pop_prefix()
 
+    @contextlib.contextmanager
+    def suffix(self, suffix):
+        """Handle pushing and popping of a tabular suffix.
+
+        Can be used in the following way:
+
+        with tabular.suffix('your_suffix'):
+            # your code
+            tabular.record(key, val)
+
+        :param suffix: The string suffix to be appended to logs.
+        """
+        self.push_suffix(suffix)
+        try:
+            yield
+        finally:
+            self.pop_suffix()
+
     def clear(self):
         """Clear the tabular."""
         # Warn if something wasn't logged
@@ -121,6 +141,19 @@ class TabularInput:
         """Pop prefix that was appended to the printed table."""
         del self._prefixes[-1]
         self._prefix_str = ''.join(self._prefixes)
+
+    def push_suffix(self, suffix):
+        """Push suffix to be appended after printed table.
+
+        :param suffix: The string prefix to be appended to logs.
+        """
+        self._suffixes.append(prefix)
+        self._suffix_str = ''.join(self._suffixes)
+
+    def pop_suffix(self):
+        """Pop suffix that was appended to the printed table."""
+        del self._suffixes[-1]
+        self._suffix_str = ''.join(self._suffixes)
 
     @property
     def as_primitive_dict(self):
