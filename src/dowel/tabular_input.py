@@ -147,7 +147,7 @@ class TabularInput:
 
         :param suffix: The string prefix to be appended to logs.
         """
-        self._suffixes.append(prefix)
+        self._suffixes.append(suffix)
         self._suffix_str = ''.join(self._suffixes)
 
     def pop_suffix(self):
