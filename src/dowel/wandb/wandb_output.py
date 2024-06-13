@@ -3,6 +3,7 @@ import functools
 
 import numpy as np
 import wandb
+import warnings
 
 from dowel import LogOutput
 from dowel import TabularInput
@@ -52,6 +53,11 @@ class WandbOutput(LogOutput):
         )
 
     def dump(self, step=None):
+        if step < 0:
+            self._warn(f'Dropping {len(self._waiting_for_dump)} records corresponding to {step=}<0.')
+            self._waiting_for_dump.clear()
+            return
+
         for p in self._waiting_for_dump:
             p(step=step or self._default_step)
 
@@ -61,3 +67,20 @@ class WandbOutput(LogOutput):
     @property
     def types_accepted(self):
         return TabularInput,
+
+    def _warn(self, msg):
+        """Warns the user using warnings.warn.
+
+        The stacklevel parameter needs to be 3 to ensure the call to logger.log
+        is the one printed.
+        """
+        warnings.warn(colorize(msg, 'yellow'),
+                      WandbOutputWarning,
+                      stacklevel=3)
+        return msg
+
+
+class WandbOutputWarning(UserWarning):
+    """Warning class for the TabularInput."""
+
+    pass
