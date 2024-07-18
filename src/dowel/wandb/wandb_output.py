@@ -7,6 +7,7 @@ import warnings
 
 from dowel import LogOutput
 from dowel import TabularInput
+from dowel.utils import colorize
 
 
 WANDB_TYPES = tuple([
